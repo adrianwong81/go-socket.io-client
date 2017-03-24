@@ -1,6 +1,7 @@
 package socketio_client
 
 import (
+	"fmt"
 	"net/url"
 	"path"
 	"reflect"
@@ -153,6 +154,13 @@ func (client *Client) onPacket(decoder *decoder, packet *packet) ([]interface{},
 	default:
 		message = decoder.Message()
 	}
+
+	if message == "ack" {
+		return nil, client.onAck(packet.Id, decoder, packet)
+	} else {
+		fmt.Printf("onPacket non-ack message was received [%s]\n", message)
+	}
+
 	client.eventsLock.RLock()
 	c, ok := client.events[message]
 	client.eventsLock.RUnlock()
